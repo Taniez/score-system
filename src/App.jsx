@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import Login from "./Login";
+import Login from "./login";
 import Dashboard from "./Dashboard";
 import "./index.css";
 export default function App() {
