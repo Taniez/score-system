@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 const API =
-  "https://script.google.com/macros/s/AKfycbxuu0D8ZxR1eomgYtgtQqM7W_AUPg-b9sh24TF85YtF-CfS4zaDxmB5imnOaM_R7DKq/exec";
+  "https://script.google.com/macros/s/AKfycbxmrTfJ1GHilGk910Q711cqMYWwqxyk30NLlHns2cZjMFVm2k7js3Iu9Kmc_fo08rLy/exec";
 
 export default function Dashboard() {
   const [students, setStudents] = useState([]);
