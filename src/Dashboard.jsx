@@ -7,15 +7,16 @@ const CACHE_KEY = "student_data";
 const CACHE_TTL = 5 * 60 * 1000;
 
 export default function Dashboard() {
-  const [allData, setAllData] = useState({});
-  const [loading, setLoading] = useState(true);
+  const [allData, setAllData]     = useState({});
+  const [loading, setLoading]     = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [search, setSearch] = useState("");
-  const [selected, setSelected] = useState("");
-  const [major, setMajor] = useState("IT");
-  const [sec, setSec] = useState("1");
-  const [week, setWeek] = useState(1);
-  const [score, setScore] = useState("");
+  const [result, setResult]       = useState(null); // 'success' | 'error' | null
+  const [search, setSearch]       = useState("");
+  const [selected, setSelected]   = useState("");
+  const [major, setMajor]         = useState("IT");
+  const [sec, setSec]             = useState("1");
+  const [week, setWeek]           = useState(1);
+  const [score, setScore]         = useState("");
 
   useEffect(() => {
     const loadData = async () => {
@@ -32,7 +33,7 @@ export default function Dashboard() {
       } catch (_) {}
 
       try {
-        const res = await fetch(API);
+        const res  = await fetch(API);
         const data = await res.json();
         setAllData(data);
         localStorage.setItem(CACHE_KEY, JSON.stringify({ data, ts: Date.now() }));
@@ -47,8 +48,8 @@ export default function Dashboard() {
   }, []);
 
   const students = useMemo(() => {
-    const key = `${major}-sec${sec}`;
-    let list = allData[key] || [];
+    const key     = `${major}-sec${sec}`;
+    const list    = allData[key] || [];
     const keyword = search.trim().toLowerCase();
     if (!keyword) return list;
     return list.filter(
@@ -67,6 +68,7 @@ export default function Dashboard() {
     if (score === "") return alert("กรุณากรอกคะแนน");
 
     setSubmitting(true);
+    setResult(null);
     try {
       await fetch(API, {
         method: "POST",
@@ -78,11 +80,11 @@ export default function Dashboard() {
           score: Number(score),
         }),
       });
-      alert("บันทึกสำเร็จ");
+      setResult("success");
       setScore("");
     } catch (err) {
       console.error("Submit error:", err);
-      alert("เกิดข้อผิดพลาด");
+      setResult("error");
     } finally {
       setSubmitting(false);
     }
@@ -162,7 +164,9 @@ export default function Dashboard() {
           onChange={(e) => setWeek(Number(e.target.value))}
         >
           {[...Array(11)].map((_, i) => (
-            <option key={i} value={i + 1}>สัปดาห์ {i + 1}</option>
+            <option key={i} value={i + 1}>
+              สัปดาห์ {i + 1}
+            </option>
           ))}
         </select>
 
@@ -179,10 +183,45 @@ export default function Dashboard() {
         <button
           onClick={submit}
           disabled={submitting}
-          className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
         >
-          {submitting ? "กำลังบันทึก..." : "บันทึกคะแนน"}
+          {submitting ? (
+            <>
+              <svg
+                className="animate-spin h-5 w-5 text-white"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                />
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v8z"
+                />
+              </svg>
+              กำลังบันทึก...
+            </>
+          ) : (
+            "บันทึกคะแนน"
+          )}
         </button>
+
+        {result === "success" && (
+          <p className="mt-3 text-center text-green-600 font-semibold">✅ บันทึกสำเร็จ</p>
+        )}
+        {result === "error" && (
+          <p className="mt-3 text-center text-red-500 font-semibold">
+            ❌ เกิดข้อผิดพลาด กรุณาลองใหม่
+          </p>
+        )}
       </div>
     </div>
   );
