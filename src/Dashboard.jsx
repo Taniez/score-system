@@ -113,7 +113,7 @@ export default function Dashboard() {
   {/* สาขา */}
   <div>
     <label className="block text-sm font-semibold text-gray-700 mb-2">
-      📚 สาขา
+       สาขา
     </label>
 
     <select
@@ -129,7 +129,7 @@ export default function Dashboard() {
   {/* Section */}
   <div>
     <label className="block text-sm font-semibold text-gray-700 mb-2">
-      👥 Section
+       Section
     </label>
 
     <select
@@ -227,7 +227,7 @@ export default function Dashboard() {
   onClick={submit}
   className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition"
 >
-    💾 บันทึกคะแนน
+     บันทึกคะแนน
 </button>
       </div>
     </div>
