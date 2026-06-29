@@ -4,11 +4,12 @@ const API =
   "https://script.google.com/macros/s/AKfycbyKB5Ue8MLyIvK1x0zZLgQ_YNKowjoRBlJj8IeqRH3F5yQUaUwujxXlZO64MdojNu_8/exec";
 
 const CACHE_KEY = "student_data";
-const CACHE_TTL = 5 * 60 * 1000; // 5 นาที
+const CACHE_TTL = 5 * 60 * 1000;
 
 export default function Dashboard() {
   const [allData, setAllData] = useState({});
   const [loading, setLoading] = useState(true);
+  const [submitting, setSubmitting] = useState(false);
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState("");
   const [major, setMajor] = useState("IT");
@@ -16,12 +17,8 @@ export default function Dashboard() {
   const [week, setWeek] = useState(1);
   const [score, setScore] = useState("");
 
-  // =========================
-  // FETCH WITH CACHE
-  // =========================
   useEffect(() => {
     const loadData = async () => {
-      // ลองอ่าน cache ก่อน
       try {
         const cached = localStorage.getItem(CACHE_KEY);
         if (cached) {
@@ -29,12 +26,11 @@ export default function Dashboard() {
           if (Date.now() - ts < CACHE_TTL) {
             setAllData(data);
             setLoading(false);
-            return; // ใช้ cache ได้เลย ไม่ต้องยิง API
+            return;
           }
         }
       } catch (_) {}
 
-      // ไม่มี cache หรือหมดอายุ → fetch จริง
       try {
         const res = await fetch(API);
         const data = await res.json();
@@ -50,9 +46,6 @@ export default function Dashboard() {
     loadData();
   }, []);
 
-  // =========================
-  // FILTER ด้วย useMemo (ไม่ re-render ฟรี)
-  // =========================
   const students = useMemo(() => {
     const key = `${major}-sec${sec}`;
     let list = allData[key] || [];
@@ -65,18 +58,15 @@ export default function Dashboard() {
     );
   }, [major, sec, search, allData]);
 
-  // reset selected เมื่อ list เปลี่ยน
   useEffect(() => {
     setSelected("");
   }, [major, sec]);
 
-  // =========================
-  // SUBMIT SCORE
-  // =========================
   const submit = async () => {
     if (!selected) return alert("กรุณาเลือกนักศึกษา");
     if (score === "") return alert("กรุณากรอกคะแนน");
 
+    setSubmitting(true);
     try {
       await fetch(API, {
         method: "POST",
@@ -93,12 +83,11 @@ export default function Dashboard() {
     } catch (err) {
       console.error("Submit error:", err);
       alert("เกิดข้อผิดพลาด");
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  // =========================
-  // UI
-  // =========================
   return (
     <div className="min-h-screen bg-slate-100 text-black p-6">
       <div className="max-w-3xl mx-auto bg-white rounded-3xl shadow-xl p-8">
@@ -189,9 +178,10 @@ export default function Dashboard() {
 
         <button
           onClick={submit}
-          className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition"
+          disabled={submitting}
+          className="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-3 rounded-xl transition disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          บันทึกคะแนน
+          {submitting ? "กำลังบันทึก..." : "บันทึกคะแนน"}
         </button>
       </div>
     </div>

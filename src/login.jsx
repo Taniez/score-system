@@ -1,40 +1,14 @@
-import { useState, useEffect, useRef } from "react";
-import { io } from "socket.io-client";
+import { useState } from "react";
 
 export default function Login({ onLogin }) {
   const [password, setPassword] = useState("");
-  const [loading, setLoading] = useState(false);
-  const socketRef = useRef(null);
-
-  useEffect(() => {
-    // สร้าง socket ตอน component mount
-    const socket = io();
-    socketRef.current = socket;
-
-    socket.on("admin-status", (data) => {
-      setLoading(false);
-      if (data && data.success) {
-        onLogin({ socket, admin: data, resumeIds: data.resumeIds });
-      } else {
-        alert("รหัสผ่านไม่ถูกต้อง");
-      }
-    });
-
-    return () => {
-      socket.off("admin-status");
-      // ไม่ disconnect เพราะต้องส่งต่อให้ parent ใช้ต่อ
-    };
-  }, [onLogin]);
 
   const submit = () => {
-    if (!password.trim()) return;
-    if (!socketRef.current) return;
-    setLoading(true);
-    socketRef.current.emit("check-admin", password);
-  };
-
-  const handleKeyDown = (e) => {
-    if (e.key === "Enter") submit();
+    if (password === "4321") {
+      onLogin();
+    } else {
+      alert("รหัสผ่านไม่ถูกต้อง");
+    }
   };
 
   return (
@@ -50,17 +24,14 @@ export default function Login({ onLogin }) {
           placeholder="กรอกรหัสผ่าน"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
-          onKeyDown={handleKeyDown}
-          disabled={loading}
-          className="w-full border p-3 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50"
+          className="w-full border p-3 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-400"
         />
 
         <button
           onClick={submit}
-          disabled={loading}
-          className="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          className="w-full bg-blue-500 text-white py-3 rounded-lg hover:bg-blue-600 transition"
         >
-          {loading ? "กำลังตรวจสอบ..." : "เข้าสู่ระบบ"}
+          เข้าสู่ระบบ
         </button>
 
       </div>
