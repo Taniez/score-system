@@ -1,33 +1,36 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { io } from "socket.io-client";
-
-// สร้าง socket ครั้งเดียว ไม่สร้างใหม่ทุก render
-const socket = io();
 
 export default function Login({ onLogin }) {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const socketRef = useRef(null);
 
   useEffect(() => {
-    // รับผลจาก server
+    // สร้าง socket ตอน component mount
+    const socket = io();
+    socketRef.current = socket;
+
     socket.on("admin-status", (data) => {
       setLoading(false);
-
       if (data && data.success) {
-        // ส่ง socket + ข้อมูล admin กลับไปให้ parent ใช้ต่อ
         onLogin({ socket, admin: data, resumeIds: data.resumeIds });
       } else {
         alert("รหัสผ่านไม่ถูกต้อง");
       }
     });
 
-    return () => socket.off("admin-status");
+    return () => {
+      socket.off("admin-status");
+      // ไม่ disconnect เพราะต้องส่งต่อให้ parent ใช้ต่อ
+    };
   }, [onLogin]);
 
   const submit = () => {
     if (!password.trim()) return;
+    if (!socketRef.current) return;
     setLoading(true);
-    socket.emit("check-admin", password); // ส่งให้ server ตรวจ
+    socketRef.current.emit("check-admin", password);
   };
 
   const handleKeyDown = (e) => {
