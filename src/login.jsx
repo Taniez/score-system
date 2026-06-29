@@ -4,7 +4,7 @@ export default function Login({ onLogin }) {
   const [password, setPassword] = useState("");
 
   const submit = () => {
-    if (password === "4321") {
+    if (password === "43210") {
       onLogin();
     } else {
       alert("รหัสผ่านไม่ถูกต้อง");

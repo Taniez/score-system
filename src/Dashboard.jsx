@@ -139,6 +139,8 @@ export default function Dashboard() {
     >
       <option value="1">Sec 1</option>
       <option value="2">Sec 2</option>
+      <option value="3">Sec 3</option>
+      <option value="4">Sec 4</option>
       
     </select>
     
