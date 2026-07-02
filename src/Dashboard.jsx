@@ -60,6 +60,16 @@ export default function Dashboard({ admin, onLogout }) {
   }, [major, sec, search, allData]);
 
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const q = params.get("search");
+    if (q) {
+      setSearch(q);
+      // ล้าง query string ออกจาก URL โดยไม่ reload หน้า
+      window.history.replaceState({}, "", window.location.pathname);
+    }
+  }, []);
+
+  useEffect(() => {
     setSelected("");
   }, [major, sec]);
 
