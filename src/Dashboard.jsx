@@ -66,22 +66,25 @@ export default function Dashboard({ admin, onLogout }) {
   const submit = async () => {
     if (!selected) return alert("กรุณาเลือกนักศึกษา");
     if (score === "") return alert("กรุณากรอกคะแนน");
-
+  
     setSubmitting(true);
     setResult(null);
     try {
       await fetch(API, {
         method: "POST",
         body: JSON.stringify({
-          major,
-          sec,
-          id: selected,
-          week: Number(week),
-          score: Number(score),
+          major, sec, id: selected,
+          week: Number(week), score: Number(score),
         }),
       });
       setResult("success");
       setScore("");
+  
+      // ✅ ดึง 4 ตัวท้ายจาก student id แล้วส่งไป queue
+      const last4 = selected.slice(-4);
+      const queueUrl = `https://queue-app-n3s8.onrender.com?search=${last4}`;
+      setTimeout(() => { window.location.href = queueUrl; }, 800);
+  
     } catch (err) {
       console.error("Submit error:", err);
       setResult("error");
