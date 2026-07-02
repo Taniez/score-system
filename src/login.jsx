@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { io } from "socket.io-client";
 
 // ชี้ไปที่ queue server
-const QUEUE_SERVER = "https://queue-app-n3s8.onrender.com/"; // ← เปลี่ยนเป็น URL จริง
+const QUEUE_SERVER = "https://queue-app-n3s8.onrender.com"; // ← เปลี่ยนเป็น URL จริง
 
 export default function Login({ onLogin }) {
   const [password, setPassword]   = useState("");
