@@ -6,17 +6,17 @@ const API =
 const CACHE_KEY = "student_data";
 const CACHE_TTL = 5 * 60 * 1000;
 
-export default function Dashboard() {
-  const [allData, setAllData]     = useState({});
-  const [loading, setLoading]     = useState(true);
+export default function Dashboard({ admin, onLogout }) {
+  const [allData, setAllData]       = useState({});
+  const [loading, setLoading]       = useState(true);
   const [submitting, setSubmitting] = useState(false);
-  const [result, setResult]       = useState(null); // 'success' | 'error' | null
-  const [search, setSearch]       = useState("");
-  const [selected, setSelected]   = useState("");
-  const [major, setMajor]         = useState("IT");
-  const [sec, setSec]             = useState("1");
-  const [week, setWeek]           = useState(1);
-  const [score, setScore]         = useState("");
+  const [result, setResult]         = useState(null); // 'success' | 'error' | null
+  const [search, setSearch]         = useState("");
+  const [selected, setSelected]     = useState("");
+  const [major, setMajor]           = useState("IT");
+  const [sec, setSec]               = useState("1");
+  const [week, setWeek]             = useState(1);
+  const [score, setScore]           = useState("");
 
   useEffect(() => {
     const loadData = async () => {
@@ -90,12 +90,32 @@ export default function Dashboard() {
     }
   };
 
+  const handleLogout = () => {
+    sessionStorage.removeItem("adminPass");
+    sessionStorage.removeItem("adminName");
+    sessionStorage.removeItem("adminId");
+    onLogout();
+  };
+
   return (
     <div className="min-h-screen bg-slate-100 text-black p-6">
       <div className="max-w-3xl mx-auto bg-white rounded-3xl shadow-xl p-8">
-        <h1 className="text-3xl font-bold text-center text-blue-700 mb-6">
-          ระบบกรอกคะแนนนักศึกษา
-        </h1>
+
+        {/* Header + logout */}
+        <div className="flex items-center justify-between mb-6">
+          <h1 className="text-3xl font-bold text-blue-700">
+            ระบบกรอกคะแนนนักศึกษา
+          </h1>
+          <div className="flex flex-col items-end gap-1">
+            <span className="text-sm text-gray-500">👤 {admin?.name || "TA"}</span>
+            <button
+              onClick={handleLogout}
+              className="text-xs text-red-500 hover:text-red-700 underline"
+            >
+              ออกจากระบบ
+            </button>
+          </div>
+        </div>
 
         <div className="grid grid-cols-2 gap-4 mb-6">
           <div>
@@ -193,19 +213,8 @@ export default function Dashboard() {
                 fill="none"
                 viewBox="0 0 24 24"
               >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8v8z"
-                />
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
               </svg>
               กำลังบันทึก...
             </>
@@ -215,11 +224,11 @@ export default function Dashboard() {
         </button>
 
         {result === "success" && (
-          <p className="mt-3 text-center text-green-600 font-semibold">✅ บันทึกสำเร็จ</p>
+          <p className="mt-3 text-center text-green-600 font-semibold"> บันทึกสำเร็จ</p>
         )}
         {result === "error" && (
           <p className="mt-3 text-center text-red-500 font-semibold">
-            ❌ เกิดข้อผิดพลาด กรุณาลองใหม่
+             เกิดข้อผิดพลาด กรุณาลองใหม่
           </p>
         )}
       </div>
