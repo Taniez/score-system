@@ -7,6 +7,10 @@ const CACHE_KEY = "student_data";
 const CACHE_TTL = 5 * 60 * 1000;
 
 export default function Dashboard({ admin, onLogout }) {
+const last4 = selected.slice(-4);
+const adminPass = sessionStorage.getItem("adminPass") || "";
+const queueUrl = `https://queue-app-n3s8.onrender.com?search=${last4}&ap=${encodeURIComponent(adminPass)}`;
+setTimeout(() => { window.location.href = queueUrl; }, 800);
   const [allData, setAllData]       = useState({});
   const [loading, setLoading]       = useState(true);
   const [submitting, setSubmitting] = useState(false);
