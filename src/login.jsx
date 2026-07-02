@@ -1,66 +1,62 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { io } from "socket.io-client";
 
-// ชี้ไปที่ queue server
-const QUEUE_SERVER = "https://queue-app-n3s8.onrender.com"; // ← เปลี่ยนเป็น URL จริง
+const QUEUE_SERVER = "https://queue-app-n3s8.onrender.com";
 
 export default function Login({ onLogin }) {
-  const [password, setPassword]   = useState("");
-  const [loading, setLoading]     = useState(false);
-  const [error, setError]         = useState("");
-  const [socket, setSocket]       = useState(null);
+  const [password, setPassword] = useState("");
+  const [loading, setLoading]   = useState(false);
+  const [error, setError]       = useState("");
+  const socketRef               = useRef(null);
+  const passwordRef             = useRef("");
+
+  // sync password → ref ทุกครั้งที่เปลี่ยน
+  useEffect(() => { passwordRef.current = password; }, [password]);
 
   useEffect(() => {
     const s = io(QUEUE_SERVER, { autoConnect: false });
-    setSocket(s);
-    return () => s.disconnect();
-  }, []);
+    socketRef.current = s;
 
-  useEffect(() => {
-    if (!socket) return;
-
-    socket.on("admin-status", (data) => {
+    s.on("admin-status", (data) => {
       setLoading(false);
       if (data && data.success) {
-        // เก็บ session ไว้เหมือน queue client
-        sessionStorage.setItem("adminPass", password);
+        sessionStorage.setItem("adminPass", passwordRef.current);
         sessionStorage.setItem("adminName", data.name);
         sessionStorage.setItem("adminId",   String(data.id));
         onLogin({ name: data.name, id: data.id });
       } else {
         setError("รหัสผ่านไม่ถูกต้อง");
-        socket.disconnect();
+        s.disconnect();
       }
     });
 
-    socket.on("connect_error", () => {
+    s.on("connect_error", () => {
       setLoading(false);
       setError("เชื่อมต่อ server ไม่ได้ กรุณาลองใหม่");
-      socket.disconnect();
+      s.disconnect();
     });
 
-    return () => {
-      socket.off("admin-status");
-      socket.off("connect_error");
-    };
-  }, [socket, password, onLogin]);
+    return () => s.disconnect();
+  }, [onLogin]);
 
   const submit = () => {
     if (!password) return setError("กรุณากรอกรหัสผ่าน");
     setError("");
     setLoading(true);
-    socket.connect();
-    socket.emit("check-admin", password);
+    const s = socketRef.current;
+    if (s.connected) {
+      s.emit("check-admin", password);
+    } else {
+      s.connect();
+      s.once("connect", () => s.emit("check-admin", password));
+    }
   };
 
-  const handleKey = (e) => {
-    if (e.key === "Enter") submit();
-  };
+  const handleKey = (e) => { if (e.key === "Enter") submit(); };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <div className="w-full max-w-sm bg-white p-6 rounded-2xl shadow-lg">
-
         <h2 className="text-2xl font-bold text-center mb-6">Login TA</h2>
 
         <input
@@ -73,9 +69,7 @@ export default function Login({ onLogin }) {
           className="w-full border p-3 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50"
         />
 
-        {error && (
-          <p className="text-red-500 text-sm text-center mb-3">{error}</p>
-        )}
+        {error && <p className="text-red-500 text-sm text-center mb-3">{error}</p>}
 
         <button
           onClick={submit}
@@ -92,8 +86,6 @@ export default function Login({ onLogin }) {
             </>
           ) : "เข้าสู่ระบบ"}
         </button>
-
       </div>
     </div>
   );
-}
