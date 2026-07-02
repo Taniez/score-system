@@ -7,10 +7,6 @@ const CACHE_KEY = "student_data";
 const CACHE_TTL = 5 * 60 * 1000;
 
 export default function Dashboard({ admin, onLogout }) {
-const last4 = selected.slice(-4);
-const adminPass = sessionStorage.getItem("adminPass") || "";
-const queueUrl = `https://queue-app-n3s8.onrender.com?search=${last4}&ap=${encodeURIComponent(adminPass)}`;
-setTimeout(() => { window.location.href = queueUrl; }, 800);
   const [allData, setAllData]       = useState({});
   const [loading, setLoading]       = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -84,10 +80,11 @@ setTimeout(() => { window.location.href = queueUrl; }, 800);
       setResult("success");
       setScore("");
   
-      // ✅ ดึง 4 ตัวท้ายจาก student id แล้วส่งไป queue
-      const last4 = selected.slice(-4);
-      const queueUrl = `https://queue-app-n3s8.onrender.com?search=${last4}`;
-      setTimeout(() => { window.location.href = queueUrl; }, 800);
+   // ✅ ส่ง adminPass ไปด้วยผ่าน URL
+   const last4     = selected.slice(-4);
+   const adminPass = sessionStorage.getItem("adminPass") || "";
+   const queueUrl  = `https://queue-app-n3s8.onrender.com?search=${last4}&ap=${encodeURIComponent(adminPass)}`;
+   setTimeout(() => { window.location.href = queueUrl; }, 800);
   
     } catch (err) {
       console.error("Submit error:", err);
